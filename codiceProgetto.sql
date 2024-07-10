@@ -10,6 +10,12 @@ SELECT entity, electricity_from_renewables_twh
 	WHERE year = '2020'
 ORDER BY electricity_from_renewables_twh DESC;
 
+-- guardo quali sono i paesi che non hanno prodotto energia rinnovabile nel 2020
+SELECT entity, electricity_from_renewables_twh
+	FROM sustainabledata
+	WHERE year = '2020' AND electricity_from_renewables_twh = 0
+ORDER BY electricity_from_renewables_twh ASC;
+
 -- controllo la produzione pro-capite di energia rinnovabile, 
 -- così da avere un indicatore pesato sulla popolazione totale che rispecchi maggiormente la posizione dei paesi
 SELECT s.entity, s.year, s.electricity_from_renewables_twh,  
@@ -17,8 +23,11 @@ SELECT s.entity, s.year, s.electricity_from_renewables_twh,
 	FROM SustainableData s
 JOIN worldData2023 w
 	ON s.entity = w.Country
-WHERE s.year = '2020'
-ORDER BY renewable_electricity_pro_capite_twh DESC;
+WHERE s.year = '2020' AND s.electricity_from_renewables_twh != 0
+ORDER BY renewable_electricity_pro_capite_twh DESC
+LIMIT 10;
+
+-- 
 
 
 

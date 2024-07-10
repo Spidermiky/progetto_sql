@@ -10,10 +10,15 @@ TYPE NUMERIC USING electricity_from_renewables_twh::numeric;
 UPDATE worlddata2023 
 SET population = REPLACE(population, '.', '');
 
--- cambio il datatype della colonna in numeric
+-- cambio il datatype della colonna "population" in numeric
 ALTER TABLE worlddata2023
 ALTER COLUMN population 
 TYPE NUMERIC USING population::numeric;
+
+-- cambio il datatype della colonna "year" in numeric
+ALTER TABLE sustainabledata
+ALTER COLUMN year
+TYPE NUMERIC USING year::numeric;
 
 -- controllo l'esattezza direttamente dalla tabella
 SELECT population FROM worlddata2023;
