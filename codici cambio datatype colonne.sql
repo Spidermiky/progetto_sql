@@ -20,5 +20,10 @@ ALTER TABLE sustainabledata
 ALTER COLUMN year
 TYPE NUMERIC USING year::numeric;
 
+-- cambio il datatype della colonna "renewable_electricity_generating_capacity_per_capita " in numeric
+ALTER TABLE sustainabledata
+ALTER COLUMN renewable_electricity_generating_capacity_per_capita 
+TYPE NUMERIC USING renewable_electricity_generating_capacity_per_capita::numeric;
+
 -- controllo l'esattezza direttamente dalla tabella
 SELECT population FROM worlddata2023;
