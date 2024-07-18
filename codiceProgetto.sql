@@ -87,8 +87,24 @@ SELECT * FROM renewable_energy_increment_and_production;
 
 -- ANALISI DEI DATI SANITARI
 
+-- Estrapolo dal dataset "sustainabledata" i dati riguardanti la sanità e li inserisco in una MATERIALIZED VIEW
+
+CREATE MATERIALIZED VIEW sanity_data AS
 SELECT country, population, fertility_rate, birth_rate, infant_mortality, life_expectancy, 
 	   maternal_mortality_ratio, out_of_pocket_health_expenditure, physicians_per_thousand
 FROM worlddata2023;
+
+SELECT * FROM sanity_data;
+
+-- Aggiungo la colonna riguardante la quantità di froze armate del paese per vedere se 
+-- la loro quantità(maggiore sono i militari pro capite più presumibilmente il paese partecipa a conflitti) influisce sull'aspettativa di vita
+
+SELECT s.country, s.population, s.life_expectancy, ROUND((w.armed_forces_size/w.population), 5) AS armed_forces_pro_capite 
+	FROM sanity_data s
+JOIN worlddata2023 w
+	ON s.country = w.country
+WHERE w.armed_forces_size IS NOT NULL
+ORDER BY armed_forces_pro_capite DESC;
+
 
 

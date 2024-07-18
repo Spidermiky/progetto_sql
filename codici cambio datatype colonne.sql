@@ -27,3 +27,37 @@ TYPE NUMERIC USING renewable_electricity_generating_capacity_per_capita::numeric
 
 -- controllo l'esattezza direttamente dalla tabella
 SELECT population FROM worlddata2023;
+
+-- cambio il datatype dei dati sulla sanità in numeric
+ALTER TABLE worlddata2023
+ALTER COLUMN life_expectancy
+TYPE NUMERIC USING life_expectancy::numeric;
+
+ALTER TABLE worlddata2023
+ALTER COLUMN infant_mortality
+TYPE NUMERIC USING infant_mortality::numeric;
+
+ALTER TABLE worlddata2023
+ALTER COLUMN fertility_rate
+TYPE NUMERIC USING fertility_rate::numeric;
+
+ALTER TABLE worlddata2023
+ALTER COLUMN maternal_mortality_ratio
+TYPE NUMERIC USING maternal_mortality_ratio::numeric;
+
+ALTER TABLE worlddata2023
+ALTER COLUMN physicians_per_thousand
+TYPE NUMERIC USING physicians_per_thousand::numeric;
+
+ALTER TABLE worlddata2023
+ALTER COLUMN birth_rate
+TYPE NUMERIC USING birth_rate::numeric;
+
+
+UPDATE worlddata2023 
+SET armed_forces_size = REPLACE(armed_forces_size, ',', '');
+
+ALTER TABLE worlddata2023 
+ALTER COLUMN armed_forces_size
+TYPE NUMERIC USING armed_forces_size::numeric;
+
