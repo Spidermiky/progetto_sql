@@ -65,12 +65,30 @@ JOIN worlddata2023 w
 	ON p.entity = w.Country	
 ORDER BY production_increment_pro_capite DESC;
 
+-- Seleziono le 10 nazioni che hanno incrementato di più la produzione di energia rinnovabile tra il 2015 e il 2020
+
 SELECT * FROM renewable_energy_production_increment
-WHERE production_increment_pro_capite IS NOT NULL;
+WHERE production_increment_pro_capite IS NOT NULL 
+LIMIT 10;
 
--- Creo una materialized view con all'interno gli stati con maggior aumento di produzione negli ultimi 5 anni di energia rinnovabile
+-- Creo una materialized view con all'interno gli stati con la maggior produzoine e la rispettiva variazione 
+-- di produzione negli ultimi 5 anni di energia rinnovabile
 
-CREATE MATERIALIZED VIEW renewable_energy_increment_5y AS
+CREATE MATERIALIZED VIEW renewable_energy_increment_and_production AS
+SELECT r.entity, r.renewable_electricity_pro_capite_twh, i.production_increment_pro_capite
+	FROM renewable_energy_production_rank r
+JOIN renewable_energy_production_increment i
+	ON r.entity = i.entity
+WHERE production_increment_pro_capite != 0
+ORDER BY renewable_electricity_pro_capite_twh DESC; 
 
+SELECT * FROM renewable_energy_increment_and_production;
+
+
+-- ANALISI DEI DATI SANITARI
+
+SELECT country, population, fertility_rate, birth_rate, infant_mortality, life_expectancy, 
+	   maternal_mortality_ratio, out_of_pocket_health_expenditure, physicians_per_thousand
+FROM worlddata2023;
 
 
