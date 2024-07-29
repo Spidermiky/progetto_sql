@@ -61,3 +61,12 @@ ALTER TABLE worlddata2023
 ALTER COLUMN armed_forces_size
 TYPE NUMERIC USING armed_forces_size::numeric;
 
+-- 
+
+UPDATE worlddata2023 
+SET out_of_pocket_health_expenditure = REPLACE(out_of_pocket_health_expenditure, '%', '');
+	
+ALTER TABLE worlddata2023
+ALTER COLUMN out_of_pocket_health_expenditure 
+TYPE NUMERIC USING out_of_pocket_health_expenditure::NUMERIC;
+
