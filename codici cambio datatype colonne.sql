@@ -70,3 +70,11 @@ ALTER TABLE worlddata2023
 ALTER COLUMN out_of_pocket_health_expenditure 
 TYPE NUMERIC USING out_of_pocket_health_expenditure::NUMERIC;
 
+--
+
+UPDATE worlddata2023 
+SET co2_emissions  = REPLACE(co2_emissions, ',', '');
+
+ALTER TABLE worlddata2023 
+ALTER COLUMN co2_emissions 
+TYPE NUMERIC USING co2_emissions ::numeric;

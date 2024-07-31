@@ -4,6 +4,21 @@ e se esiste una correlazione tra alcune delle variabili. */
 
 -- POSIZIONE DEI PAESI IN FATTO DI ENERGIA RINNOVABILE
 
+/* Controllo quali sono i paesi con maggiori emissioni di Co2 
+(numeri riferiti in tonnellate nel database, confronto a dati dell'internet, wikipedia, sono divisi per 1000) */
+
+SELECT country, co2_emissions
+	FROM worlddata2023
+	WHERE co2_emissions IS NOT NULL
+ORDER BY co2_emissions DESC;
+
+-- Trovo la produzione, in tonnellate, di co2 pro capite
+
+SELECT country, co2_emissions, round((co2_emissions/population)*1000, 5) AS co2_emissions_pro_capite
+	FROM worlddata2023
+	WHERE co2_emissions IS NOT NULL
+ORDER BY co2_emissions_pro_capite DESC;
+	
 -- guardo quali sono i paesi con la maggiore produzione di energia rinnovabile nel 2020
 
 SELECT entity, electricity_from_renewables_twh
@@ -81,7 +96,7 @@ SELECT * FROM renewable_energy_production_increment
 WHERE production_increment_pro_capite IS NOT NULL 
 LIMIT 10;
 
-/* Creo una materialized view con all'interno gli stati con la maggior produzione e la rispettiva variazione 
+/* Creo una materialized view con all'interno gli stati con la maggior produzione e la rispettiva variazione
 di produzione negli ultimi 5 anni di energia rinnovabile */
 
 CREATE MATERIALIZED VIEW renewable_energy_increment_and_production AS
@@ -144,7 +159,7 @@ SELECT CORR(fertility_rate, infant_mortality) AS corr_fertility_rate_and_infant_
 
 -- Un tasso di correlazione di 0.85265 mi conferma che il tasso di fertilità e il tasso di mortalità infantile sono molto correlati 
 
--- Controllo quali sono le nazioni con il tasso di mortalità durante il parto 
+-- Controllo quali sono le nazioni con il tasso di mortalità durante il parto
 
 SELECT country, maternal_mortality_ratio, birth_rate
 		FROM sanity_data
@@ -157,7 +172,21 @@ SELECT CORR(maternal_mortality_ratio, birth_rate)
 	FROM sanity_data;
 
 -- Concludo potendo affermare che con una correlazione che supera lo 0.768 che le due variabili sono fortemente correlate
+
+-- Controllo quanto influisce la presenza di psicologi sull'aspettativa di vita
+
+SELECT country, physicians_per_thousand 
+	FROM sanity_data
+	WHERE physicians_per_thousand 
 	
+SELECT country, life_expectancy, physicians_per_thousand
+	FROM sanity_data
+WHERE life_expectancy IS NOT NULL AND physicians_per_thousand IS NOT NULL
+ORDER BY country;
+
+SELECT CORR(life_expectancy, physicians_per_thousand) FROM sanity_data
+
+
 /* Controllo la correlazione tra la quantità di froze armate del paese e l'aspettativa di vita per vedere se 
 può essere un dato rilevante per l'analisi */
 
@@ -165,3 +194,10 @@ SELECT CORR(life_expectancy, armed_forces_size) AS corr_life_exp_and_armed_force
 	FROM worlddata2023;
 
 /* La correlazione è molto vicina allo 0, quindi il dato non risulta rilevante ai fini dell'analisi */
+
+
+-- Filtro i dati relativi all'istruzione
+
+SELECT country, gross_primary_education_enrollment_perc, gross_tertiary_education_enrollment_perc, 
+	   unemployment_rate, minimum_wage, labor_force_participation_perc 
+	FROM worlddata2023;
