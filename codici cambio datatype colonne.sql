@@ -78,3 +78,15 @@ SET co2_emissions  = REPLACE(co2_emissions, ',', '');
 ALTER TABLE worlddata2023 
 ALTER COLUMN co2_emissions 
 TYPE NUMERIC USING co2_emissions ::numeric;
+
+--
+BEGIN
+UPDATE worlddata2023 
+SET minimum_wage = REPLACE(minimum_wage, '$', '');
+
+ALTER TABLE worlddata2023
+ALTER COLUMN minimum_wage
+TYPE NUMERIC USING minimum_wage::NUMERIC;
+
+SELECT country, minimum_wage FROM worlddata2023;
+commit

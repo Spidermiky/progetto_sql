@@ -173,19 +173,23 @@ SELECT CORR(maternal_mortality_ratio, birth_rate)
 
 -- Concludo potendo affermare che con una correlazione che supera lo 0.768 che le due variabili sono fortemente correlate
 
--- Controllo quanto influisce la presenza di psicologi sull'aspettativa di vita
+-- Controllo quali sono i paesi con il maggior numero di dottori ogni 1000 abitanti
 
 SELECT country, physicians_per_thousand 
 	FROM sanity_data
-	WHERE physicians_per_thousand 
-	
+WHERE physicians_per_thousand IS NOT NULL
+ORDER BY physicians_per_thousand DESC; 
+
+-- Controllo quanto influisce la presenza di dottori sull'aspettativa di vita
+
 SELECT country, life_expectancy, physicians_per_thousand
 	FROM sanity_data
 WHERE life_expectancy IS NOT NULL AND physicians_per_thousand IS NOT NULL
 ORDER BY country;
 
-SELECT CORR(life_expectancy, physicians_per_thousand) FROM sanity_data
+SELECT CORR(life_expectancy, physicians_per_thousand) FROM sanity_data;
 
+-- Ovviamente la maggior presenza di dottori favorisce una maggiore aspettaiva di vita, ne è la conferma una correlazione pari a 0.7037
 
 /* Controllo la correlazione tra la quantità di froze armate del paese e l'aspettativa di vita per vedere se 
 può essere un dato rilevante per l'analisi */
@@ -195,9 +199,73 @@ SELECT CORR(life_expectancy, armed_forces_size) AS corr_life_exp_and_armed_force
 
 /* La correlazione è molto vicina allo 0, quindi il dato non risulta rilevante ai fini dell'analisi */
 
+-- ANALISI DATI SULL'ISTRUZIONE
 
 -- Filtro i dati relativi all'istruzione
 
+CREATE MATERIALIZED VIEW education_data AS
 SELECT country, gross_primary_education_enrollment_perc, gross_tertiary_education_enrollment_perc, 
-	   unemployment_rate, minimum_wage, labor_force_participation_perc 
-	FROM worlddata2023;
+	   unemployment_rate, minimum_wage_in_dollars, labor_force_participation_perc 
+	FROM worlddata2023
+ORDER BY country ASC;
+
+SELECT * FROM education_data;
+
+SELECT country, gross_primary_education_enrollment_perc, gross_tertiary_education_enrollment_perc
+	FROM education_data
+WHERE gross_primary_education_enrollment_perc IS NOT NULL AND gross_tertiary_education_enrollment_perc IS NOT NULL 
+ORDER BY gross_tertiary_education_enrollment_perc DESC;
+
+SELECT CORR(gross_primary_education_enrollment_perc, gross_tertiary_education_enrollment_perc) FROM education_data;
+
+/* Si nota subito come nella maggior parte degli stati l'iscrizione alla 'primary education' non si rispecchi poi 
+un alto tasso di iscrzione alla 'tertiary education' */
+
+SELECT country, gross_primary_education_enrollment_perc
+	 FROM education_data 
+WHERE gross_primary_education_enrollment_perc IS NOT NULL
+ORDER BY gross_primary_education_enrollment_perc DESC;
+
+SELECT CORR(gross_primary_education_enrollment_perc, minimum_wage_in_dollars) FROM education_data;
+
+/* Molti, ma non tutti, paesi del terzo mondo hanno dei numeri molto alti nel 'primary education enrollment' probabilmente inflazionati dalle stime che avvengono
+senza tener conto dell'inizio in anticipo di alcuni bambini, di eventuali ripetenti o iscrizioni in età tardiva; 
+oppure più semplicemente quando le iscrizioni effettive negli istituti scolastici eccedono i numeri stimati di bambini in età scolastica 'giusta' */
+	
+SELECT country, gross_tertiary_education_enrollment_perc, minimum_wage_in_dollars
+	 FROM education_data 
+WHERE gross_tertiary_education_enrollment_perc IS NOT NULL
+ORDER BY gross_tertiary_education_enrollment_perc DESC;
+
+/* Controllo la correlazione tra un alto livello di istruzione terziaria e lo stipendio medio della nazione, 
+purtoppo questi dati non srisultano completi essendoci molti dati mancanti nella colonna 'minimum_wage_in_dollars' */
+
+SELECT CORR(gross_tertiary_education_enrollment_perc, minimum_wage_in_dollars) FROM education_data;
+
+-- Controllo il valore massimo, il minimo e il valore medio della colonna 'minimum_wage_in_dollars'
+
+SELECT MIN(gross_tertiary_education_enrollment_perc) FROM worlddata2023;
+SELECT MAX(gross_tertiary_education_enrollment_perc) FROM worlddata2023;
+SELECT AVG(gross_tertiary_education_enrollment_perc) FROM worlddata2023;
+
+/* Creo una vista che contiene una colonna che indica se la nazione ha un livello di istruzione alto, medio o basso. Scaglioni ricavati da una partizione
+della distribuzione avvenuta attraverso i valori precedentemente ricavati */
+	
+CREATE VIEW education_level_by_nation AS
+SELECT country, gross_tertiary_education_enrollment_perc,
+	CASE
+ 		WHEN gross_tertiary_education_enrollment_perc >= 50 THEN 'Alto livello di istruzione'
+		WHEN gross_tertiary_education_enrollment_perc >= 25 THEN 'Medio livello di istruzione'
+		ELSE 'Basso livello di istruzione'
+	END AS National_educational_level
+FROM education_data
+WHERE gross_tertiary_education_enrollment_perc IS NOT NULL
+ORDER BY gross_tertiary_education_enrollment_perc DESC;
+
+-- Controllo la numerosità dei 3 scaglioni
+
+SELECT National_educational_level, COUNT(National_educational_level) 
+	FROM education_level_by_nation
+GROUP BY National_educational_level;
+
+
