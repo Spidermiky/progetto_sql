@@ -10,34 +10,53 @@ ORDER BY country ASC;
 
 SELECT * FROM education_data;
 
+-- Guardo la posizione dei paesi relativa all' education enrollment
+
 SELECT country, gross_primary_education_enrollment_perc, gross_tertiary_education_enrollment_perc
 	FROM education_data
 WHERE gross_primary_education_enrollment_perc IS NOT NULL AND gross_tertiary_education_enrollment_perc IS NOT NULL 
 ORDER BY gross_tertiary_education_enrollment_perc DESC;
 
-SELECT CORR(gross_primary_education_enrollment_perc, gross_tertiary_education_enrollment_perc) FROM education_data;
+SELECT CORR(gross_primary_education_enrollment_perc, gross_tertiary_education_enrollment_perc) 
+	FROM education_data;
 
 /* Si nota subito come nella maggior parte degli stati l'iscrizione alla 'primary education' non si rispecchi poi 
-un alto tasso di iscrzione alla 'tertiary education' */
+un alto tasso di iscrzione alla 'tertiary education' 
+
+Controllo i 10 paesi con maggior 'primary education enrollment' */
 
 SELECT country, gross_primary_education_enrollment_perc
 	 FROM education_data 
 WHERE gross_primary_education_enrollment_perc IS NOT NULL
-ORDER BY gross_primary_education_enrollment_perc DESC;
+ORDER BY gross_primary_education_enrollment_perc DESC
+LIMIT 10;
 
-SELECT CORR(gross_primary_education_enrollment_perc, minimum_wage_in_dollars) FROM education_data;
+-- Controllo i primi 10 paesi con maggior 'tertiary education enrollment'
 
-/* Molti, ma non tutti, paesi del terzo mondo hanno dei numeri molto alti nel 'primary education enrollment' probabilmente inflazionati dalle stime che avvengono
+SELECT country, gross_tertiary_education_enrollment_perc
+	 FROM education_data 
+WHERE gross_tertiary_education_enrollment_perc IS NOT NULL
+ORDER BY gross_tertiary_education_enrollment_perc DESC
+LIMIT 10;
+
+/* Si nota come le due graduatorie non contengano gli stessi paesi, nella prima sono presenti paesi principalemte poveri, nella sedonda invece paesi sviluppati
+
+Molti, ma non tutti, paesi del terzo mondo hanno dei numeri molto alti nel 'primary education enrollment' probabilmente inflazionati dalle stime che avvengono
 senza tener conto dell'inizio in anticipo di alcuni bambini, di eventuali ripetenti o iscrizioni in età tardiva; 
-oppure più semplicemente quando le iscrizioni effettive negli istituti scolastici eccedono i numeri stimati di bambini in età scolastica 'giusta' */
-	
+oppure più semplicemente quando le iscrizioni effettive negli istituti scolastici eccedono i numeri stimati di bambini in età scolastica 'giusta'
+
+Le supposizioni precendenti vengono confermate dalla correlazione negativa tra il 'minimum_wage_in_dollars' e il 'gross_primary_education_enrollment_perc' */
+
+SELECT CORR(gross_primary_education_enrollment_perc, minimum_wage_in_dollars)
+	FROM education_data;
+
+/* Controllo la correlazione tra un alto livello di istruzione terziaria e lo stipendio medio della nazione, 
+purtoppo questi dati non srisultano completi essendoci molti dati mancanti nella colonna 'minimum_wage_in_dollars' */
+
 SELECT country, gross_tertiary_education_enrollment_perc, minimum_wage_in_dollars
 	 FROM education_data 
 WHERE gross_tertiary_education_enrollment_perc IS NOT NULL
 ORDER BY gross_tertiary_education_enrollment_perc DESC;
-
-/* Controllo la correlazione tra un alto livello di istruzione terziaria e lo stipendio medio della nazione, 
-purtoppo questi dati non srisultano completi essendoci molti dati mancanti nella colonna 'minimum_wage_in_dollars' */
 
 SELECT CORR(gross_tertiary_education_enrollment_perc, minimum_wage_in_dollars) FROM education_data;
 
@@ -56,26 +75,26 @@ SELECT country, gross_tertiary_education_enrollment_perc,
  		WHEN gross_tertiary_education_enrollment_perc >= 75 THEN 'Alto livello di istruzione'
 		WHEN gross_tertiary_education_enrollment_perc >= 25 THEN 'Medio livello di istruzione'
 		ELSE 'Basso livello di istruzione'
-	END AS National_educational_level
+	END AS national_educational_level
 FROM education_data
 WHERE gross_tertiary_education_enrollment_perc IS NOT NULL  
 ORDER BY gross_tertiary_education_enrollment_perc DESC;
 
+SELECT country, national_educational_level 
+	FROM education_level_by_nation;
+
 -- Controllo la numerosità dei 3 scaglioni
 
-SELECT National_educational_level, COUNT(National_educational_level) 
+SELECT national_educational_level, COUNT(national_educational_level) 
 	FROM education_level_by_nation
-GROUP BY National_educational_level;
+GROUP BY national_educational_level;
 
--- Guardo se c'è correlazione tra il livello di istruzione e la produzione pro-capite di energia rinnovabile
+-- Controllo la relazione tra i livelli di istruzione e forza lavoro del paese
 
-CREATE VIEW education_and_renewable_energy_production AS
-SELECT e.country, e.gross_tertiary_education_enrollment_perc, r.renewable_electricity_pro_capite_twh
-	FROM education_data e
-JOIN renewable_energy_increment_and_production r
-	ON e.country = r.entity;
+SELECT country, gross_primary_education_enrollment_perc, gross_tertiary_education_enrollment_perc, labor_force_participation_perc 
+	FROM education_data
+WHERE labor_force_participation_perc IS NOT NULL AND gross_primary_education_enrollment_perc IS NOT NULL
+ORDER BY labor_force_participation_perc DESC;
 
-SELECT * FROM education_and_renewable_energy_production;
-
-SELECT CORR(gross_tertiary_education_enrollment_perc, renewable_electricity_pro_capite_twh) AS correlation_edLevel_and_renEnergyProd
-	FROM education_and_renewable_energy_production;
+/* Si nota subito come i paesi meno sviluppati, con un 'gross_primary_education_enrollment_perc' alto, 
+abbiamo molto alto anche il 'labor_force_participation_perc' */

@@ -90,3 +90,9 @@ TYPE NUMERIC USING minimum_wage::NUMERIC;
 
 SELECT country, minimum_wage FROM worlddata2023;
 commit
+
+--
+	
+ALTER TABLE sustainabledata
+ALTER COLUMN electricity_from_nuclear_twh
+TYPE NUMERIC USING electricity_from_nuclear_twh::NUMERIC;

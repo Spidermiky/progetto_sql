@@ -14,11 +14,33 @@ ORDER BY co2_emissions DESC;
 
 -- Trovo la produzione, in tonnellate, di co2 pro capite
 
-SELECT country, co2_emissions, round((co2_emissions/population)*1000, 5) AS co2_emissions_pro_capite
+SELECT country, co2_emissions, ROUND((co2_emissions/population)*1000, 5) AS co2_emissions_pro_capite
 	FROM worlddata2023
 	WHERE co2_emissions IS NOT NULL
 ORDER BY co2_emissions_pro_capite DESC;
-	
+
+/* Guardo quali sono i paesi con la maggiore produzione totale e pro capite di energia da combustibili fossili nel 2020, 
+decidendo quale dei due dati vedere a schermo cambiando il nome della colonna attraverso l'ORDER BY */
+
+SELECT s.entity, s.electricity_from_fossil_fuels_twh, 
+	   ROUND((s.electricity_from_fossil_fuels_twh/w.population), 5) AS electricity_from_fossil_fuels_twh_pro_cap
+	FROM sustainabledata s
+JOIN worlddata2023 w
+	ON s.entity = w.country
+WHERE year = '2020' AND electricity_from_fossil_fuels_twh IS NOT NULL
+ORDER BY electricity_from_fossil_fuels_twh DESC;
+
+/* Guardo quali sono i paesi con la maggiore produzione totale e pro capite di energia dal nucleare nel 2020 
+Non utilizzo la clausola IS NOT NULL, ma il '=! 0' perchè noto che ci sono solo poche nazioni che producono energia nucleare*/
+
+SELECT s.entity, s.electricity_from_nuclear_twh, 
+	   ROUND((s.electricity_from_nuclear_twh/w.population), 10) AS electricity_from_nuclear_twh_pro_cap
+	FROM sustainabledata s
+JOIN worlddata2023 w
+	ON s.entity = w.country
+WHERE year = '2020' AND electricity_from_nuclear_twh != 0
+ORDER BY electricity_from_nuclear_twh DESC;
+
 -- guardo quali sono i paesi con la maggiore produzione di energia rinnovabile nel 2020
 
 SELECT entity, electricity_from_renewables_twh
@@ -52,7 +74,7 @@ SELECT s.entity, s.year, s.electricity_from_renewables_twh,
 	FROM SustainableData s
 JOIN worldData2023 w
 	ON s.entity = w.Country
-	WHERE s.year = '2020' AND s.electricity_from_renewables_twh != 0
+WHERE s.year = '2020' AND s.electricity_from_renewables_twh != 0
 ORDER BY renewable_electricity_pro_capite_twh DESC;
 
 -- Creo due VIEW con l'energia prodotta dai vari stati nel 2020 e nel 2015
@@ -60,14 +82,14 @@ ORDER BY renewable_electricity_pro_capite_twh DESC;
 CREATE VIEW renewable_energy_2015 AS
 SELECT entity, year, electricity_from_renewables_twh
 	FROM sustainabledata
-	WHERE year = 2015;
+WHERE year = 2015;
 
 SELECT * FROM renewable_energy_2015;
 
 CREATE VIEW renewable_energy_2020 AS
 SELECT entity, year, electricity_from_renewables_twh
 	FROM sustainabledata
-	WHERE year = 2020;
+WHERE year = 2020;
 
 SELECT * FROM renewable_energy_2020;
 
