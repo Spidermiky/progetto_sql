@@ -48,7 +48,7 @@ JOIN education_data e
 WHERE e.minimum_wage_in_dollars IS NOT NULL AND s.out_of_pocket_health_expenditure IS NOT NULL
 ORDER BY s.out_of_pocket_health_expenditure DESC;
 
--- Da un primo sguardo ai risultati si presume una correlazione negativa tra le due variabili
+-- Da un primo sguardo ai risultati si presume una correlazione negativa tra le due variabili, riflessa nell'output della query che segue
 
 SELECT CORR(s.out_of_pocket_health_expenditure, e.minimum_wage_in_dollars)
 	FROM sanity_data s
